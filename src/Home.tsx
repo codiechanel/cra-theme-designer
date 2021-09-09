@@ -472,47 +472,57 @@ let colorMap = {
   error: "--er" /* Error */,
 };
 
-const MySlider = observer(({ item = null }: any) => {
-  const sliderRef = useRef<HTMLInputElement | null>(null);
-  return (
-    <div>
-      {globalStore.activeThemeColor}
-      <div className="p-8 flex gap-4">
-        <div>hue</div>
-        <input
-          ref={(el) => {
-            sliderRef.current = el;
-          }}
-          type="range"
-          max="360"
-          className="range range-primary bg-gray-600"
-          onChange={(e) => {
-            /* console.log(e.currentTarget.value);
+const HSL_Slider = observer(
+  ({ label, maxVal, hslIndex, showTitle = false }: any) => {
+    const sliderRef = useRef<HTMLInputElement | null>(null);
+    return (
+      <div>
+        {showTitle && (
+          <div className="prose-xl font-semibold">
+            {globalStore.activeThemeColor}
+          </div>
+        )}
+
+        <div className="p-8 flex gap-4">
+          <div>{label}</div>
+          <input
+            ref={(el) => {
+              sliderRef.current = el;
+            }}
+            type="range"
+            max={maxVal}
+            className="range range-primary bg-gray-600"
+            onChange={(e) => {
+              /* console.log(e.currentTarget.value);
             console.log(document.documentElement.style.getPropertyValue("--p"));*/
-            let style = getComputedStyle(document.body);
+              let style = getComputedStyle(document.body);
 
-            let cssColor = colorMap[globalStore.activeThemeColor];
-            console.log("cssColor", cssColor);
+              let cssColor = colorMap[globalStore.activeThemeColor];
+              console.log("cssColor", cssColor);
 
-            // console.log(style);
-            let s = style.getPropertyValue(cssColor);
-            let arr = s.split(" ");
-            console.log(arr);
-            arr[0] = e.currentTarget.value;
-            let newHsl = `${arr[0]} ${arr[1]} ${arr[2]}`;
-            document.documentElement.style.setProperty(cssColor, newHsl);
+              // console.log(style);
+              let s = style.getPropertyValue(cssColor);
+              s = s.replace(/%/g, "");
+              console.log("new s", s);
+              let arr = s.split(" ");
+              console.log(arr);
+              arr[hslIndex] = e.currentTarget.value;
+              let newHsl = `${arr[0]} ${arr[1]}% ${arr[2]}%`;
+              console.log("newHsl", newHsl);
+              document.documentElement.style.setProperty(cssColor, newHsl);
 
-            /*document.documentElement.style.setProperty(
+              /*document.documentElement.style.setProperty(
               "--p",
               RGBToHSL(0, 255, 0)
           );*/
-            // selectRef?.current.value
-          }}
-        />
+              // selectRef?.current.value
+            }}
+          />
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 export default function Home() {
   return (
@@ -556,7 +566,11 @@ export default function Home() {
 
         <div className="flex">
           <MyTheme />
-          <MySlider />
+          <div className="p-4">
+            <HSL_Slider label="Hue" maxVal={360} hslIndex={0} showTitle />
+            <HSL_Slider label="Sat" maxVal={100} hslIndex={1} />
+            <HSL_Slider label="Light" maxVal={100} hslIndex={2} />
+          </div>
         </div>
       </div>
     </div>
